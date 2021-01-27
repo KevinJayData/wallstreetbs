@@ -99,6 +99,6 @@ class DataCleaning(object):
     @classmethod
     def prep_email_df(cls, df):
         email_df = df[df['rank']==1]
-        email_df = email_df[['ticker', 'ticker_count', 'comment', 'comment_created_utc', 'comment_score', 'title', 'title_created_utc', 'submission_url', 'score', 'comment_permalink']].head(20)
+        email_df = email_df[['ticker', 'ticker_count', 'comment', 'comment_created_utc', 'comment_score', 'comment_permalink']].head(20)
         print(email_df)
         return email_df

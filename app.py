@@ -18,7 +18,7 @@ def execute():
     # Pick subreddit
     subreddit = reddit.subreddit("wallstreetbets")
     # Grab data
-    df = data_cleaning.DataCleaning.run_data_cleaning(subreddit, dir_path, limit_num=50)
+    df = data_cleaning.DataCleaning.run_data_cleaning(subreddit, dir_path, limit_num=100)
 
     df.to_csv('todays_bullshit.csv', index=False)
 

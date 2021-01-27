@@ -3,12 +3,9 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import config
 
 
 def send_email(config):
-
-
     # Create a multipart message and set headers
     message = MIMEMultipart()
     message["From"] = config.sender_email
