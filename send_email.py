@@ -13,7 +13,7 @@ def send_email(config):
     message["Subject"] = config.subject
     message["Bcc"] = config.receiver_email  # Recommended for mass emails
     message.attach(MIMEText(config.body, "plain"))
-    filename = "todays_bullshit.csv"
+    filename = "todays_news.csv"
 
     # Open PDF file in binary mode
     with open(filename, "rb") as attachment:

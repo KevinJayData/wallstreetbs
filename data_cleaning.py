@@ -1,6 +1,8 @@
 import pandas as pd
 from string import punctuation
 from datetime import datetime
+from sentiment_analysis import pos_neg_sentiment_analysis, classifier_model
+
 
 class DataCleaning(object):
 
@@ -43,7 +45,11 @@ class DataCleaning(object):
         # Get stock tickers
         stocks = pd.read_csv(dir_path + '/stocks.csv')
         stocks_set = set(stocks['ACT Symbol'])
-
+        # We need to ignore stock tickers that resemble common words
+        stock_ignore_set = {'I', 'ME', 'IT', 'FOR', 'EV', 'ARE', 'HES', 'OUT', 'BIG', 'ALL', 'MORE', 'MY', 'AM', 'EOD',
+                            'SO', 'PM', 'F', 'X', 'AT', 'E', 'DD', 'RH', 'IM', 'DO', 'NOW', 'CEO', 'TV', 'TIME', 'SEE',
+                            'TOO', 'STAY', 'AL', 'AN', 'KING'}
+        stocks_set = stocks_set - stock_ignore_set
         # since the grain is at the comment level, expand grain to the mention level.
         # grab comment url and then merge on that?
 
@@ -83,10 +89,16 @@ class DataCleaning(object):
                 pass
         new_df = pd.DataFrame(match_grain)
         new_df['ticker'] = new_df['ticker'].apply(lambda row: ''.join(row))
-        # Get the total count for each ticker
+        # Apply sentiment analysis model to the db, if positive it gets a value of 1, negative gets -1
+        classifier = classifier_model()
+        new_df['analysis'] = new_df['comment'].apply(lambda x: 1 if pos_neg_sentiment_analysis(x, classifier) == 'Positive' else -1)
+        # Get the total count for each ticker and sum of the sentiment analysis value
         ticker_counts = new_df.groupby(['ticker']).size().to_frame()
+        analysis_counts = new_df.groupby(['ticker'])['analysis'].agg('sum').to_frame()
+        analysis_counts.rename(columns={'analysis': 'analysis_sum'}, inplace=True)
         # left join the ticker count into the larger dataframe
         new_df = pd.merge(new_df, ticker_counts, 'left', on='ticker')
+        new_df = pd.merge(new_df, analysis_counts, 'left', on='ticker')
         new_df.rename(columns={0: 'ticker_count'}, inplace=True)
         return new_df
 
@@ -99,6 +111,6 @@ class DataCleaning(object):
     @classmethod
     def prep_email_df(cls, df):
         email_df = df[df['rank']==1]
-        email_df = email_df[['ticker', 'ticker_count', 'comment', 'comment_created_utc', 'comment_score', 'comment_permalink']].head(20)
+        email_df = email_df[['ticker', 'ticker_count', 'analysis_sum', 'comment']].head(20)
         print(email_df)
         return email_df

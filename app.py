@@ -1,6 +1,5 @@
 import praw
 import data_cleaning
-import pandas as pd
 import config
 import os
 import send_email
@@ -15,17 +14,18 @@ def execute():
                          password=config.password,
                          user_agent=config.user_agent,
                          username=config.username)
+
     # Pick subreddit
     subreddit = reddit.subreddit("wallstreetbets")
-    # Grab data
-    df = data_cleaning.DataCleaning.run_data_cleaning(subreddit, dir_path, limit_num=100)
 
-    df.to_csv('todays_bullshit.csv', index=False)
+    # Grab and clean data
+    df = data_cleaning.DataCleaning.run_data_cleaning(subreddit, dir_path, limit_num=500)
 
+    df.to_csv('todays_news.csv', index=False)
     send_email.send_email(config)
-
-    os.remove("todays_bullshit.csv")
+    os.remove("todays_news.csv")
 
 
 if __name__ == '__main__':
     execute()
+
