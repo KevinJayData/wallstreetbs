@@ -19,7 +19,7 @@ def execute():
     subreddit = reddit.subreddit("wallstreetbets")
 
     # Grab and clean data
-    df = data_cleaning.DataCleaning.run_data_cleaning(subreddit, dir_path, limit_num=500)
+    df = data_cleaning.DataCleaning.run_data_cleaning(subreddit, dir_path, limit_num=100)
 
     df.to_csv('todays_news.csv', index=False)
     send_email.send_email(config)

@@ -16,6 +16,12 @@ class DataCleaning(object):
 
     @classmethod
     def grab_data(cls, subreddit, limit_num):
+        """
+        Grabs raw data from reddi
+        :param subreddit: string of subreddit name
+        :param limit_num: number of posts to look at
+        :return: dataframe of comments
+        """
         submission_info = []
         count = 1
         for submission in subreddit.new(limit=limit_num):
@@ -42,6 +48,12 @@ class DataCleaning(object):
 
     @classmethod
     def create_comment_ticker_sets(cls, df, dir_path):
+        """
+        Performs data cleaning and removes some common english words that also happen to be ticker names
+        :param df: this input is the output of the grab_data function
+        :param dir_path: file path for saving outputs
+        :return: new df that has been cleaned
+        """
         # Get stock tickers
         stocks = pd.read_csv(dir_path + '/stocks.csv')
         stocks_set = set(stocks['ACT Symbol'])
@@ -104,12 +116,22 @@ class DataCleaning(object):
 
     @classmethod
     def sort_df(cls, df):
+        """
+        Sort the output df by highest commented ticker first
+        :param df: dataframe
+        :return: sorted df by ticker mentions
+        """
         df.sort_values(['ticker_count'], ascending=[False], inplace=True)
         df['rank'] = df.groupby(by=['ticker'])['comment_score'].transform(lambda x: x.rank(ascending=False))
         return df
 
     @classmethod
     def prep_email_df(cls, df):
+        """
+        Only send the top 20 tickers
+        :param df: dataframe
+        :return: shortened df
+        """
         email_df = df[df['rank']==1]
         email_df = email_df[['ticker', 'ticker_count', 'analysis_sum', 'comment']].head(20)
         print(email_df)
